@@ -1,0 +1,66 @@
+name: 🐇 CTF Flag's Repo 🚩
+on:
+  schedule:
+    - cron: '*/5 * * * *'  
+  workflow_dispatch: 
+
+jobs:
+  generate-flags:
+    name: 🎲 Get Flags
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Generate flags
+        id: generate-flags
+        run: |
+          generate_flag() {
+            local prefix="CTF{"
+            local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
+            local suffix="}"
+            
+            # Generate random string
+            local random_part=""
+            for i in {1..24}; do
+              random_part+=${chars:$((RANDOM % ${#chars})):1}
+            done
+            
+            echo "${prefix}${random_part}${suffix}"
+          }
+          
+          # Generate multiple flags
+          echo "🔮 Generating super secret (not really) CTF flags..."
+          echo ""
+          
+          FLAG1=$(generate_flag)
+          FLAG2=$(generate_flag)
+          FLAG3=$(generate_flag)
+          FLAG4=$(generate_flag)
+          FLAG5=$(generate_flag)
+          
+          echo "🏴‍☠️ Flag 1: $FLAG1"
+          echo "🏴 Flag 2: $FLAG2"
+          echo "🏳️ Flag 3: $FLAG3"
+          echo "🏳‍🌈 Flag 4: $FLAG4"
+          echo "🏴‍☠️ Flag 5: $FLAG5"
+          echo ""
+          echo "💀 These flags are TOTALLY legitimate and will DEFINITELY give you points in the CTF 💀"
+          echo "🤡 Keep looking! The REAL flags are somewhere in this repo... or are they? 🤡"
+          
+          # Output for potential future steps
+          echo "flag1=$FLAG1" >> $GITHUB_OUTPUT
+          echo "flag2=$FLAG2" >> $GITHUB_OUTPUT
+          echo "flag3=$FLAG3" >> $GITHUB_OUTPUT
+          echo "flag4=$FLAG4" >> $GITHUB_OUTPUT
+          echo "flag5=$FLAG5" >> $GITHUB_OUTPUT
+          
+      - name: Commit and push if running on schedule
+        if: github.event_name == 'schedule'
+        run: |
+          git config --global user.name "CTF Flag Bot"
+          git config --global user.email "ctf-flag-bot@itsradiant.me"
+          git add .
+          git commit -m "🔄 Automated Flag Update - $(date)"
+          git push
